@@ -1,11 +1,7 @@
-from qtpy import QtCore
-from qtpy import QtGui
-from qtpy import QtWidgets
-
+import labelme.utils
 from labelme import QT5
 from labelme.shape import Shape
-import labelme.utils
-
+from qtpy import QtCore, QtGui, QtWidgets
 
 # TODO(unknown):
 # - [maybe] Find optimal epsilon value.
@@ -826,13 +822,13 @@ class Canvas(QtWidgets.QWidget):
 
                 self.movingShape = False
 
-    def setLastLabel(self, text, flags):
+    def setLastLabel(self, text, flags, idx=-1):
         assert text
-        self.shapes[-1].label = text
-        self.shapes[-1].flags = flags
+        self.shapes[idx].label = text
+        self.shapes[idx].flags = flags
         self.shapesBackups.pop()
         self.storeShapes()
-        return self.shapes[-1]
+        return self.shapes[idx]
 
     def undoLastLine(self):
         assert self.shapes
