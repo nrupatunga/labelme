@@ -1127,16 +1127,9 @@ class MainWindow(QtWidgets.QMainWindow):
             text = "{} ({})".format(shape.label, shape.group_id)
         label_list_item = LabelListWidgetItem(text, shape)
 
-        if 'priority_labels' in self._config:
-            prior_labels = self._config['priority_labels']
-
-        # self.labelList.addItemFront(label_list_item)
-        if len(prior_labels):
-            is_present = False
-            for label in prior_labels:
-                if label in label_list_item.text():
-                    is_present = True
-
+        dbg()
+        is_present = self._is_priority_labels_present(
+            label_list_item.text())
         if is_present:
             label_list_item = self.labelList.addItemFront(
                 label_list_item)
@@ -1336,6 +1329,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # Callback functions:
 
+    def _is_priority_labels_present(self, text):
+        is_present = False
+        if 'priority_labels' in self._config:
+            prior_labels = self._config['priority_labels']
+
+        if len(prior_labels):
+            for label in prior_labels:
+                if label in text:
+                    is_present = True
+                    break
+
+        return is_present
+
     def newShape(self):
         """Pop-up and give focus to the label editor.
 
@@ -1363,7 +1369,12 @@ class MainWindow(QtWidgets.QMainWindow):
             text = ""
         if text:
             self.labelList.clearSelection()
-            shape = self.canvas.setLastLabel(text, flags)
+            is_present = self._is_priority_labels_present(text)
+            if is_present:
+                shape = self.canvas.setFirstLabel(text, flags)
+            else:
+                shape = self.canvas.setLastLabel(text, flags)
+
             shape.group_id = group_id
             self.addLabel(shape)
             self.actions.editMode.setEnabled(True)

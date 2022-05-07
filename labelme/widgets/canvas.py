@@ -823,13 +823,23 @@ class Canvas(QtWidgets.QWidget):
 
                 self.movingShape = False
 
-    def setLastLabel(self, text, flags):
+    def setFirstLabel(self, text, flags):
         assert text
-        self.shapes[0].label = text
-        self.shapes[0].flags = flags
+        idx = 0
+        self.shapes[idx].label = text
+        self.shapes[idx].flags = flags
         self.shapesBackups.pop()
         self.storeShapes()
-        return self.shapes[0]
+        return self.shapes[idx]
+
+    def setLastLabel(self, text, flags):
+        assert text
+        idx = -1
+        self.shapes[idx].label = text
+        self.shapes[idx].flags = flags
+        self.shapesBackups.pop()
+        self.storeShapes()
+        return self.shapes[idx]
 
     def undoLastLine(self):
         assert self.shapes

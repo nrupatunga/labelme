@@ -105,4 +105,4 @@ shortcuts:
   toggle_keep_prev_mode: Ctrl+P
   remove_selected_point: [Meta+H, Backspace]
 
-priority_labels: ['key', 'lay']
+priority_labels: []
