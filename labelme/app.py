@@ -1343,7 +1343,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if len(prior_labels):
             for label in prior_labels:
-                if label in text:
+                if text.startswith(label):
                     is_present = True
                     break
 
