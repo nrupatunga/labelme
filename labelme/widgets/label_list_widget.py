@@ -166,6 +166,18 @@ class LabelListWidget(QtWidgets.QListView):
             self.model().setItem(self.model().rowCount(), 0, item)
             item.setSizeHint(self.itemDelegate().sizeHint(None, None))
 
+    def addItemAt(self, item, idx):
+        if not isinstance(item, LabelListWidgetItem):
+            raise TypeError("item must be LabelListWidgetItem")
+
+        item_new = item
+        if self.model().findItems(item.text()):
+            raise ValueError("items are repeated")
+
+        self.model().insertRow(idx, item_new)
+        item_new.setSizeHint(self.itemDelegate().sizeHint(None, None))
+        return item_new
+
     def addItemFront(self, item):
         if not isinstance(item, LabelListWidgetItem):
             raise TypeError("item must be LabelListWidgetItem")

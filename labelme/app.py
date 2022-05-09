@@ -1119,6 +1119,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected == 1)
 
+    def _find_idx_postion(self, labelList, curr_label):
+        idx = 0
+        priority_labels = self._config['priority_labels']
+        for label in priority_labels:
+            if curr_label.startswith(label):
+                break
+            for i, label_list_item in enumerate(labelList):
+                if label_list_item.text().startswith(label):
+                    idx = idx + 1
+        return idx
+
     def addLabel(self, shape):
         if shape.group_id is None:
             text = shape.label
@@ -1128,15 +1139,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         is_present = self._is_priority_labels_present(label_list_item.text())
         if is_present:
-            label_list_item = self.labelList.addItemFront(
-                label_list_item)
+            idx = self._find_idx_postion(self.labelList, shape.label)
+            label_list_item = self.labelList.addItemAt(
+                label_list_item, idx=idx)
         else:
             self.labelList.addItem(label_list_item)
 
         if not self.uniqLabelList.findItemsByLabel(shape.label):
             item = self.uniqLabelList.createItemFromLabel(shape.label)
             if is_present:
-                self.uniqLabelList.insertItem(0, item)
+                self.uniqLabelList.insertItem(idx, item)
             else:
                 self.uniqLabelList.addItem(item)
             rgb = self._get_rgb_by_label(shape.label)
@@ -1337,6 +1349,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return is_present
 
+    def _sort_shapes_by_priority_labels(self, shapes):
+        priority_labels = self._config['priority_labels']
+        priority_shapes = []
+        filter_idx = []
+        for i, label in enumerate(priority_labels):
+            current_shapes = []
+            for j, shape in enumerate(shapes):
+                if shape.label.startswith(label):
+                    current_shapes.append(shape)
+                    filter_idx.append(j)
+            priority_shapes.append(current_shapes)
+
+        filter_shapes = [shapes[i] for i in range(len(shapes)) if i not
+                         in filter_idx]
+
+        shapes = priority_shapes[0] + priority_shapes[1] + filter_shapes
+        return shapes
+
     # Callback functions:
     def newShape(self):
         """Pop-up and give focus to the label editor.
@@ -1371,6 +1401,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.canvas.shapes.insert(0, self.canvas.shapes[-1])
                 del self.canvas.shapes[-1]
                 shape = self.canvas.setLastLabel(text, flags, idx=0)
+                self.canvas.shapes = self._sort_shapes_by_priority_labels(
+                    self.canvas.shapes)
             else:
                 shape = self.canvas.setLastLabel(text, flags)
             shape.group_id = group_id
